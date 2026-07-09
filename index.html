@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Poster Studio</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:white}header{padding:18px;text-align:center;background:#111827;border-bottom:1px solid #334155}h1{margin:0;font-size:24px}.app{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:20px}.panel{background:#111827;border:1px solid #334155;border-radius:18px;padding:16px}.panel label{display:block;margin-top:12px;font-size:14px;color:#cbd5e1}.panel input,.panel textarea,.panel select{width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid #475569;background:#020617;color:white}.panel button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:12px;background:#facc15;color:#111827;font-weight:700;font-size:16px}.poster-wrap{display:flex;justify-content:center}.poster{width:420px;height:746px;background:linear-gradient(180deg,#1e293b,#020617);position:relative;overflow:hidden;border-radius:18px;box-shadow:0 20px 60px #0008}.photo{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.55}.overlay{position:absolute;inset:0;background:linear-gradient(180deg,#0002,#0009)}.content{position:absolute;inset:0;padding:30px;display:flex;flex-direction:column;justify-content:space-between;text-align:center}.date{font-size:34px;font-weight:900;color:#facc15}.type{font-size:22px;text-transform:uppercase;letter-spacing:1px}.title{font-size:36px;font-weight:900;line-height:1.05}.place{font-size:22px}.support{background:#ffffffdd;color:#111827;border-radius:14px;padding:12px;font-weight:700}.small{font-size:13px;color:#94a3b8;text-align:center;margin-top:8px}@media(max-width:850px){.app{grid-template-columns:1fr;padding:12px}.poster{width:100%;max-width:420px;height:calc(min(100vw - 24px,420px)*1.777)}}
+  </style>
+</head>
+<body>
+<header><h1>Poster Studio</h1><div class="small">Создание афиш для соревнований</div></header>
+<main class="app">
+  <section class="panel">
+    <label>Вид соревнований</label>
+    <select id="type"><option>Выездка</option><option>Конкур</option><option>Хоббихорсинг</option></select>
+    <label>Дата</label><input id="date" value="12.09.2026">
+    <label>Название</label><textarea id="title">Межмуниципальные соревнования</textarea>
+    <label>Место</label><input id="place" value="Конный завод «Калгановский»">
+    <label>При поддержке</label><input id="support" value="ФКС СПб • ФКС ЛО">
+    <label>Фото для фона</label><input id="image" type="file" accept="image/*">
+    <label>Стиль</label><select id="style"><option value="dark">Тёмный</option><option value="gold">Золотой</option><option value="blue">Синий</option></select>
+    <button onclick="downloadPoster()">Скачать афишу PNG</button>
+    <div class="small">После публикации сайт можно добавить на экран Домой iPhone.</div>
+  </section>
+  <section class="poster-wrap">
+    <div class="poster" id="poster">
+      <div class="photo" id="photo"></div><div class="overlay"></div>
+      <div class="content">
+        <div><div class="date" id="pDate">12.09.2026</div><div class="type" id="pType">Выездка</div></div>
+        <div><div class="title" id="pTitle">Межмуниципальные соревнования</div><div class="place" id="pPlace">Конный завод «Калгановский»</div></div>
+        <div class="support" id="pSupport">При поддержке: ФКС СПб • ФКС ЛО</div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const ids=['type','date','title','place','support'];
+ids.forEach(id=>document.getElementById(id).addEventListener('input',update));
+document.getElementById('style').addEventListener('change',update);
+document.getElementById('image').addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>photo.style.backgroundImage=`url(${r.result})`; r.readAsDataURL(f);});
+function update(){pType.textContent=type.value;pDate.textContent=date.value;pTitle.textContent=title.value;pPlace.textContent=place.value;pSupport.textContent='При поддержке: '+support.value; const s=style.value; poster.style.background=s==='gold'?'linear-gradient(180deg,#92400e,#111827)':s==='blue'?'linear-gradient(180deg,#1d4ed8,#020617)':'linear-gradient(180deg,#1e293b,#020617)'}
+async function downloadPoster(){const canvas=await html2canvas(document.getElementById('poster'),{scale:3,useCORS:true});const a=document.createElement('a');a.download='afisha.png';a.href=canvas.toDataURL('image/png');a.click()}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+update();
+</script>
+</body>
+</html>
